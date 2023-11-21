@@ -1,5 +1,0 @@
-variables
-x in [-10,10];
-
-constraints
-end
