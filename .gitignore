@@ -1,0 +1,6 @@
+Trabajo/hill-climbing/*
+Trabajo/abstaylor/*
+Trabajo/simulated-annealing/*
+!Trabajo/simulated-annealing/src*
+
+.vscode*
