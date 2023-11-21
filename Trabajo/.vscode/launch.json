@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/Ketbome/Desktop/Projects/Electivo/Trabajo",
-      "program": "c:/Users/Ketbome/Desktop/Projects/Electivo/Trabajo/build/Debug/outDebug",
+      "cwd": "c:/Users/Ketbome/Desktop/Projects/Electivo/Trabajo/simulated",
+      "program": "c:/Users/Ketbome/Desktop/Projects/Electivo/Trabajo/simulated/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

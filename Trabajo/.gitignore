@@ -1,0 +1,6 @@
+hill-climbing/*
+abstaylor/*
+simulated-annealing/*
+!simulated-annealing/src/numeric*
+
+.vscode*
