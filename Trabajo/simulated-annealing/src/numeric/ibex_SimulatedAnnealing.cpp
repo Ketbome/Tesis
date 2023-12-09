@@ -34,11 +34,11 @@ namespace ibex
         IntervalVector vecino = inicial;
         double temperaturaInicial = 1.0;
         double temperatura = 1.0;
-        double enfriamiento = 0.90; // Tasa de enfriamiento, puedes ajustar este valor
+        double enfriamiento = 0.7; // Tasa de enfriamiento, puedes ajustar este valor
         double k = 1.0;
 
         int iter = 0;
-        while (cambio && iter < 200)
+        while (cambio && iter < 100)
         {
             cambio = false;
             for (int i = 0; i < inicial.size(); i++)
@@ -58,12 +58,6 @@ namespace ibex
                 // Generar un número aleatorio
                 double R = RNG::rand(0, 1);
 
-                /*if (deltaE > 0 && P > R)
-                {
-                    std::cout << temperatura << "," << deltaE << "," << P << "," << R << std::endl;
-                }*/
-
-                // Aceptar o rechazar el nuevo estado
                 if (P > R || deltaE < 0)
                 {
                     mejor = f_obj(vecino, restriccion);
@@ -77,8 +71,8 @@ namespace ibex
                 }
             }
             iter++;
-            temperatura = temperaturaInicial / std::log(iter + 2.0);
-            // temperatura = temperaturaInicial * std::pow(enfriamiento, iter);
+            // temperatura = temperaturaInicial / std::log(iter + 2.0);
+            temperatura = temperaturaInicial * std::pow(enfriamiento, iter + 2);
         }
         return inicial.mid();
     }
