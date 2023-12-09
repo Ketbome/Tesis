@@ -38,7 +38,7 @@ namespace ibex
         double k = 1.0;
 
         int iter = 0;
-        while (cambio && iter < 50)
+        while (cambio && iter < 200)
         {
             cambio = false;
             for (int i = 0; i < inicial.size(); i++)
@@ -48,6 +48,7 @@ namespace ibex
                 double magnitud = (box[i].ub() - box[i].lb()) * 0.1;
                 ruido = ruido * magnitud;
                 vecino[i] = Interval(inicial[i].lb() + ruido, inicial[i].ub() + ruido);
+
                 // Calcular el cambio en la energía
                 double deltaE = f_obj(vecino, restriccion) - mejor;
                 // Calcular la probabilidad de aceptación
