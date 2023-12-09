@@ -9,14 +9,14 @@ services:
     container_name: simulated-annealing
     volumes:
       - ./simulated-annealing:/app
-  #hill-climbing:
-  #  build: .
-  #  tty: true
-  #  stdin_open: true
-  #  image: hill-climbing
-  #  container_name: hill-climbing
-  #  volumes:
-  #    - ./hill-climbing:/app
+  hill-climbing:
+    build: .
+    tty: true
+    stdin_open: true
+    image: hill-climbing
+    container_name: hill-climbing
+    volumes:
+      - ./hill-climbing:/app
   abstaylor:
     build: .
     tty: true
