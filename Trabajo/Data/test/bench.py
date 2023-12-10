@@ -1,6 +1,6 @@
 import csv
 
-with open('100itpow07not.log', 'r') as f, open('100itpow07not.csv', 'w', newline='') as csvfile:
+with open('150pow07.log', 'r') as f, open('150pow07.csv', 'w', newline='') as csvfile:
     fieldnames = ['Seed', 'Solucion Empleada', 'Problema', 'Tiempo', 'Nodos']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
@@ -22,10 +22,10 @@ with open('100itpow07not.log', 'r') as f, open('100itpow07not.csv', 'w', newline
 import pandas as pd
 
 # Leer el archivo CSV
-df = pd.read_csv('100itpow07not.csv')
+df = pd.read_csv('150pow07.csv')
 
 # Agrupar por nombre del problema y calcular promedios
 df_avg = df.groupby('Problema').agg({'Tiempo': 'mean', 'Nodos': 'mean'})
 
 # Guardar en un nuevo archivo CSV
-df_avg.to_csv('100itpow07notmean.csv')
+df_avg.to_csv('150pow07mean.csv')
