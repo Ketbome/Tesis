@@ -6,8 +6,8 @@ Este conjunto de instrucciones detalla el proceso de instalación de Ibex 2.8.9 
 
 ### Requisitos
 
-- [Docker]: https://www.docker.com
-- [Docker-compose]: https://docs.docker.com/compose/
+- [Docker](https://www.docker.com)
+- [Docker-compose](https://docs.docker.com/compose/)
 
 ### Pasos instalación
 
