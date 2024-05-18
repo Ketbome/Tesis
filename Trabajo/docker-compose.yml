@@ -1,6 +1,7 @@
-#------------- VERSION -------------#
 version: '3'
+
 services:
+
   simulated-annealing:
     build: .
     tty: true
@@ -9,6 +10,13 @@ services:
     container_name: simulated-annealing
     volumes:
       - ./simulated-annealing:/app
+    command: >
+      bash -c "cd /app &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf install &&
+      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
+      tail -f /dev/null"
+
   hill-climbing:
     build: .
     tty: true
@@ -17,6 +25,13 @@ services:
     container_name: hill-climbing
     volumes:
       - ./hill-climbing:/app
+    command: >
+      bash -c "cd /app &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf install &&
+      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
+      tail -f /dev/null"
+
   abstaylor:
     build: .
     tty: true
@@ -25,3 +40,9 @@ services:
     container_name: abstaylor
     volumes:
       - ./abstaylor:/app
+    command: >
+      bash -c "cd /app &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf install &&
+      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
+      tail -f /dev/null"
