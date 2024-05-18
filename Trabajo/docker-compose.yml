@@ -76,3 +76,22 @@ services:
       resources:
         limits:
           cpus: "1.0"
+
+  simulated-annealing-parallel:
+    build: .
+    tty: true
+    stdin_open: true
+    image: simulated-annealing-parallel
+    container_name: simulated-annealing-parallel
+    volumes:
+      - ./simulated-annealing-parallel:/app
+    command: >
+      bash -c "cd /app &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf install &&
+      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
+      tail -f /dev/null"
+    deploy:
+      resources:
+        limits:
+          cpus: "5"
