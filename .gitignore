@@ -2,5 +2,7 @@ Trabajo/hill-climbing/*
 Trabajo/abstaylor/*
 Trabajo/simulated-annealing/*
 !Trabajo/simulated-annealing/src*
+Trabajo/simulated-annealing-joa/*
+!Trabajo/simulated-annealing-joa/src*
 
 .vscode*

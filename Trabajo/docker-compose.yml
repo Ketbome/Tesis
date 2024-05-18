@@ -1,7 +1,6 @@
-version: '3'
+version: "3"
 
 services:
-
   simulated-annealing:
     build: .
     tty: true
@@ -16,6 +15,29 @@ services:
       ./waf install &&
       ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
       tail -f /dev/null"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+
+  simulated-annealing-joa:
+    build: .
+    tty: true
+    stdin_open: true
+    image: simulated-annealing-joa
+    container_name: simulated-annealing-joa
+    volumes:
+      - ./simulated-annealing-joa:/app
+    command: >
+      bash -c "cd /app &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf install &&
+      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
+      tail -f /dev/null"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
 
   hill-climbing:
     build: .
@@ -31,6 +53,10 @@ services:
       ./waf install &&
       ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
       tail -f /dev/null"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
 
   abstaylor:
     build: .
@@ -46,3 +72,7 @@ services:
       ./waf install &&
       ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
       tail -f /dev/null"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
