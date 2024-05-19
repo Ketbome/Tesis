@@ -94,4 +94,4 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "5"
+          cpus: "5.0"

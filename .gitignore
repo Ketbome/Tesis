@@ -4,5 +4,7 @@ Trabajo/simulated-annealing/*
 !Trabajo/simulated-annealing/src*
 Trabajo/simulated-annealing-joa/*
 !Trabajo/simulated-annealing-joa/src*
+Trabajo/simulated-annealing-parallel/*
+!Trabajo/simulated-annealing-parallel/src*
 
 .vscode*
