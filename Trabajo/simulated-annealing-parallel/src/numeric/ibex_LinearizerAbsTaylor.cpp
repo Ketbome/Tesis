@@ -15,11 +15,31 @@
 #include "ibex_NormalizedSystem.h"
 #include <iostream>
 #include <vector>
+#include <sys/wait.h>
+#include <unistd.h> 
+#include <limits>
 
 
 using namespace std;
 
 namespace ibex {
+
+std::vector<IntervalVector> divide_box(const IntervalVector& box, int num_regions) {
+    std::vector<IntervalVector> regions(num_regions);
+
+    for (int i = 0; i < box.size(); i++) {
+        Interval interval = box[i];
+        double step = (interval.ub() - interval.lb()) / num_regions;
+
+        for (int j = 0; j < num_regions; j++) {
+            double lb = interval.lb() + j * step;
+            double ub = interval.lb() + (j + 1) * step;
+            regions[j][i] = Interval(lb, ub);
+        }
+    }
+
+    return regions;
+}
 
 namespace {
 	class Unsatisfiability : public Exception { };
@@ -54,15 +74,76 @@ int LinearizerAbsTaylor::linearize(const IntervalVector& box, LPSolver& _lp_solv
 }
 
 int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
-
-	// expansion point
-	SimulatedAnnealing SA(box, sys);
+	
 	//std::cout << "hill climbing" << std::endl;
     Vector exp_point(box.size());
     if (point == MID)
         exp_point = box.mid();
     else if (point == Simulated_Annealing){
-            exp_point = SA.v1(box);
+		Vector best_expansion_point = box.mid();
+		double best_expansion_fobj = std::numeric_limits<double>::max();
+		// Crear y ejecutar los procesos simultáneos
+		const int num_processes = 5; // Número de procesos (ajusta según sea necesario)
+		pid_t pids[num_processes];
+		int pipes[num_processes][2]; // Tuberías para la comunicación entre procesos
+
+		// Dividir el box en regiones
+        std::vector<IntervalVector> regions = divide_box(box, num_processes);
+
+		for (int i = 0; i < num_processes; i++) {
+			// Crear la tubería
+			if (pipe(pipes[i]) == -1) {
+				perror("pipe");
+				exit(EXIT_FAILURE);
+			}
+			pid_t pid = fork();
+
+			if (pid == -1) {
+				// Error al crear el proceso
+				// Manejar el error aquí
+			} else if (pid == 0) {
+				// Código del proceso hijo
+                close(pipes[i][0]); // Cerrar el extremo de lectura de la tubería
+				SimulatedAnnealing SA(regions[i], sys);
+				std::pair<Vector, double> result = SA.v1(regions[i]); // Ejecutar Simulated Annealing y obtener el resultado
+				// Escribir el resultado en la tubería
+				ssize_t write_result = write(pipes[i][1], &result, sizeof(result));
+				if (write_result == -1) {
+					perror("write");
+					exit(EXIT_FAILURE);
+				}
+				close(pipes[i][1]); // Cerrar el extremo de escritura de la tubería
+				exit(0); // Terminar el proceso hijo
+			} else {
+				// Código del proceso padre
+				close(pipes[i][1]); // Cerrar el extremo de escritura de la tubería
+				pids[i] = pid;
+			}
+		}
+
+		// Esperar a que todos los procesos hijos terminen
+		for (int i = 0; i < num_processes; i++) {
+			int status;
+			waitpid(pids[i], &status, 0);
+			std::pair<Vector, double> child_result = std::make_pair(Vector::zeros(box.size()), 0);
+			// Leer el resultado del proceso hijo desde la tubería
+			ssize_t read_result = read(pipes[i][0], &child_result, sizeof(child_result));
+			if (read_result == -1) {
+				perror("read");
+				exit(EXIT_FAILURE);
+			}
+			close(pipes[i][0]); // Cerrar el extremo de lectura de la tubería
+			
+			// Actualizar el mejor punto de expansión encontrado
+			if (child_result.second < best_expansion_fobj) {
+				best_expansion_point = child_result.first;
+				best_expansion_fobj = child_result.second;
+				printf("Best expansion point: %f\n", best_expansion_fobj);
+			}
+		}
+
+		// Utilizar el mejor punto de expansión encontrado
+		exp_point = best_expansion_point;
 	}
     else if (point == RANDOM){
         for (int i = 0 ; i < box.size() ; i++)

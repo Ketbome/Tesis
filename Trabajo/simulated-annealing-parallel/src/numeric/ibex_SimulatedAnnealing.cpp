@@ -15,7 +15,7 @@ namespace ibex
         return sys.f_ctrs[ctr].eval(x).mid();
     }
 
-    Vector SimulatedAnnealing::v1(const IntervalVector &box)
+    std::pair<Vector, double> SimulatedAnnealing::v1(const IntervalVector &box)
     {
         IntervalVector inicial(box.size());
         double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); // Escoger restriccion aleatoria
@@ -74,6 +74,9 @@ namespace ibex
             // temperatura = temperaturaInicial / std::log(iter + 2.0);
             temperatura = temperaturaInicial * std::pow(enfriamiento, iter + 2);
         }
-        return inicial.mid();
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
     }
 }
