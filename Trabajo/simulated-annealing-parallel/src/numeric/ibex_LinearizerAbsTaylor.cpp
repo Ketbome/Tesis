@@ -59,43 +59,52 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
     if (point == MID)
         exp_point = box.mid();
     else if (point == Simulated_Annealing) {
-		pid_t pid;
+		int NUM_PROCESSES = 5;
+		pid_t pid[NUM_PROCESSES];
 		int pipefd[2];
+		double best_fobj = std::numeric_limits<double>::max();
 		if (pipe(pipefd) == -1) {
 			perror("pipe");
 			exit(EXIT_FAILURE);
 		}
+		
+		
+		for(int i=0; i<NUM_PROCESSES; i++){
+			pid[i] = fork();
+			if (pid[i] < 0) {
+				perror("fork");
+				exit(EXIT_FAILURE);
+			}
+			else if (pid[i] == 0) {
+				close(pipefd[0]);
+				SimulatedAnnealing SA(box, sys);
+				std::pair<Vector, double> result = SA.v1(box);
+				if (result.second < best_fobj) {
+					best_fobj = result.second;
+					ssize_t written = write(pipefd[1], &result, sizeof(result));
+					if (written == -1 || written != sizeof(result)) {
+						perror("write");
+						exit(EXIT_FAILURE);
+					}
+				}
+				close(pipefd[1]);
+				exit(EXIT_SUCCESS);
+			}
+		}
+		for(int i=0; i<NUM_PROCESSES; i++){
+			int status;
+			waitpid(pid[i], &status, 0);
+		}
 
-		pid = fork();
-		if (pid < 0) {
-			perror("fork");
+		close(pipefd[1]);
+		std::pair<Vector, double> result = std::make_pair(Vector::zeros(box.size()), 0.0);
+		ssize_t read_bytes = read(pipefd[0], &result, sizeof(result));
+		if (read_bytes == -1 || read_bytes != sizeof(result)) {
+			perror("read");
 			exit(EXIT_FAILURE);
 		}
-		else if (pid == 0) {
-			close(pipefd[0]); // Cerrar el extremo de lectura en el hijo
-			SimulatedAnnealing SA(box, sys);
-			std::pair<Vector, double> result = SA.v1(box);
-			ssize_t written = write(pipefd[1], &result, sizeof(result));
-			if (written == -1 || written != sizeof(result)) {
-				perror("write");
-				exit(EXIT_FAILURE);
-			}
-			close(pipefd[1]);
-			exit(EXIT_SUCCESS);
-		}
-		else {
-			close(pipefd[1]);
-			int status;
-			waitpid(pid, &status, 0);
-			std::pair<Vector, double> result = std::make_pair(Vector::zeros(box.size()), 0.0);
-			ssize_t read_bytes = read(pipefd[0], &result, sizeof(result));
-			if (read_bytes == -1 || read_bytes != sizeof(result)) {
-				perror("read");
-				exit(EXIT_FAILURE);
-			}
-			close(pipefd[0]);
-			exp_point = result.first;
-		}
+		close(pipefd[0]);
+		exp_point = result.first;
     }
     else if (point == RANDOM){
         for (int i = 0 ; i < box.size() ; i++)
