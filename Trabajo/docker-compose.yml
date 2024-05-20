@@ -87,6 +87,7 @@ services:
       - ./simulated-annealing-parallel:/app
     command: >
       bash -c "cd /app &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
       ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
       tail -f /dev/null"
