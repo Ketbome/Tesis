@@ -17,51 +17,10 @@
 #include <vector>
 #include <sys/wait.h>
 #include <unistd.h> 
-#include <limits>
-#include <mutex>
-#include "/usr/include/pthread.h"
 
 using namespace std;
 
 namespace ibex {
-
-struct ThreadArgs {
-    IntervalVector box;
-    System sys;
-    Vector best_expansion_point;
-    double best_expansion_fobj;
-    pthread_mutex_t mtx;
-};
-
-void* v1_thread(void* args) {
-    ThreadArgs* data = static_cast<ThreadArgs*>(args);
-    SimulatedAnnealing SA(data->box, data->sys);
-    std::pair<Vector, double> result = SA.v1(data->box);
-    pthread_mutex_lock(&(data->mtx));
-    if (result.second < data->best_expansion_fobj) {
-        data->best_expansion_point = result.first;
-        data->best_expansion_fobj = result.second;
-    }
-    pthread_mutex_unlock(&(data->mtx));
-    return NULL;
-}
-
-std::vector<IntervalVector> divide_box(const IntervalVector& box, int num_regions) {
-    std::vector<IntervalVector> regions(num_regions);
-
-    for (int i = 0; i < box.size(); i++) {
-        Interval interval = box[i];
-        double step = (interval.ub() - interval.lb()) / num_regions;
-
-        for (int j = 0; j < num_regions; j++) {
-            double lb = interval.lb() + j * step;
-            double ub = interval.lb() + (j + 1) * step;
-            regions[j][i] = Interval(lb, ub);
-        }
-    }
-
-    return regions;
-}
 
 namespace {
 	class Unsatisfiability : public Exception { };
@@ -96,25 +55,36 @@ int LinearizerAbsTaylor::linearize(const IntervalVector& box, LPSolver& _lp_solv
 }
 
 int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
-	
-	//std::cout << "hill climbing" << std::endl;
     Vector exp_point(box.size());
     if (point == MID)
         exp_point = box.mid();
-    else if (point == Simulated_Annealing){
-        Vector best_expansion_point = box.mid();
-        double best_expansion_fobj = std::numeric_limits<double>::max();
-        pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+    else if (point == Simulated_Annealing) {
+		pid_t pid;
+		int pipefd[2];
+    	pipe(pipefd);
 
-        ThreadArgs args = {box, sys, best_expansion_point, best_expansion_fobj, mtx};
-
-        pthread_t t;
-        pthread_create(&t, NULL, v1_thread, &args);
-        pthread_join(t, NULL);
-
-        pthread_mutex_lock(&mtx);
-        exp_point = args.best_expansion_point;
-        pthread_mutex_unlock(&mtx);
+		pid = fork();
+		if (pid < 0) {
+			perror("fork");
+			exit(EXIT_FAILURE);
+		}
+		else if (pid == 0) {
+			close(pipefd[0]); // Cerrar el extremo de lectura en el hijo
+			SimulatedAnnealing SA(box, sys);
+			std::pair<Vector, double> result = SA.v1(box);
+			write(pipefd[1], &result, sizeof(result));
+			close(pipefd[1]);
+			exit(EXIT_SUCCESS);
+		}
+		else {
+			close(pipefd[1]);
+			int status;
+			waitpid(pid, &status, 0);
+			std::pair<Vector, double> result = std::make_pair(Vector::zeros(box.size()), 0.0);
+			read(pipefd[0], &result, sizeof(result));
+			close(pipefd[0]);
+			exp_point = result.first;
+		}
     }
     else if (point == RANDOM){
         for (int i = 0 ; i < box.size() ; i++)
