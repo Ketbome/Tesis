@@ -61,7 +61,10 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
     else if (point == Simulated_Annealing) {
 		pid_t pid;
 		int pipefd[2];
-    	pipe(pipefd);
+		if (pipe(pipefd) == -1) {
+			perror("pipe");
+			exit(EXIT_FAILURE);
+		}
 
 		pid = fork();
 		if (pid < 0) {
@@ -72,7 +75,11 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
 			close(pipefd[0]); // Cerrar el extremo de lectura en el hijo
 			SimulatedAnnealing SA(box, sys);
 			std::pair<Vector, double> result = SA.v1(box);
-			write(pipefd[1], &result, sizeof(result));
+			ssize_t written = write(pipefd[1], &result, sizeof(result));
+			if (written == -1 || written != sizeof(result)) {
+				perror("write");
+				exit(EXIT_FAILURE);
+			}
 			close(pipefd[1]);
 			exit(EXIT_SUCCESS);
 		}
@@ -81,7 +88,11 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
 			int status;
 			waitpid(pid, &status, 0);
 			std::pair<Vector, double> result = std::make_pair(Vector::zeros(box.size()), 0.0);
-			read(pipefd[0], &result, sizeof(result));
+			ssize_t read_bytes = read(pipefd[0], &result, sizeof(result));
+			if (read_bytes == -1 || read_bytes != sizeof(result)) {
+				perror("read");
+				exit(EXIT_FAILURE);
+			}
 			close(pipefd[0]);
 			exp_point = result.first;
 		}
