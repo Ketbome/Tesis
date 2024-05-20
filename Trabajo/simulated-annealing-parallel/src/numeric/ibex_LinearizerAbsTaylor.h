@@ -12,6 +12,10 @@
 
 #include "ibex_Linearizer.h"
 #include "ibex_System.h"
+#include <limits>
+#include <mutex>
+#include <pthread.h>
+
 
 
 namespace ibex {

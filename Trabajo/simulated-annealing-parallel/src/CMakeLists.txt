@@ -5,7 +5,7 @@ add_library (ibex "")
 
 target_include_directories (ibex PUBLIC "$<BUILD_INTERFACE:${IBEX_INCDIRS}>")
 
-target_link_libraries (ibex PUBLIC ${INTERVAL_LIB_TARGET} ${LP_LIB_TARGET})
+target_link_libraries(ibex PUBLIC ${INTERVAL_LIB_TARGET} ${LP_LIB_TARGET} pthread -lpthread)
 if (WIN32)
   # We (may) need this for strdup under Windows (see issue #287)
   target_compile_options (ibex PUBLIC "-U__STRICT_ANSI__")

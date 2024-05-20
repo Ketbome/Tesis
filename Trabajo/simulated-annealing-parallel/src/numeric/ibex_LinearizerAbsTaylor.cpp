@@ -18,11 +18,33 @@
 #include <sys/wait.h>
 #include <unistd.h> 
 #include <limits>
-
+#include <mutex>
+#include "/usr/include/pthread.h"
 
 using namespace std;
 
 namespace ibex {
+
+struct ThreadArgs {
+    IntervalVector box;
+    System sys;
+    Vector best_expansion_point;
+    double best_expansion_fobj;
+    pthread_mutex_t mtx;
+};
+
+void* v1_thread(void* args) {
+    ThreadArgs* data = static_cast<ThreadArgs*>(args);
+    SimulatedAnnealing SA(data->box, data->sys);
+    std::pair<Vector, double> result = SA.v1(data->box);
+    pthread_mutex_lock(&(data->mtx));
+    if (result.second < data->best_expansion_fobj) {
+        data->best_expansion_point = result.first;
+        data->best_expansion_fobj = result.second;
+    }
+    pthread_mutex_unlock(&(data->mtx));
+    return NULL;
+}
 
 std::vector<IntervalVector> divide_box(const IntervalVector& box, int num_regions) {
     std::vector<IntervalVector> regions(num_regions);
@@ -80,71 +102,20 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
     if (point == MID)
         exp_point = box.mid();
     else if (point == Simulated_Annealing){
-		Vector best_expansion_point = box.mid();
-		double best_expansion_fobj = std::numeric_limits<double>::max();
-		// Crear y ejecutar los procesos simultáneos
-		const int num_processes = 5; // Número de procesos (ajusta según sea necesario)
-		pid_t pids[num_processes];
-		int pipes[num_processes][2]; // Tuberías para la comunicación entre procesos
+        Vector best_expansion_point = box.mid();
+        double best_expansion_fobj = std::numeric_limits<double>::max();
+        pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 
-		// Dividir el box en regiones
-        std::vector<IntervalVector> regions = divide_box(box, num_processes);
+        ThreadArgs args = {box, sys, best_expansion_point, best_expansion_fobj, mtx};
 
-		for (int i = 0; i < num_processes; i++) {
-			// Crear la tubería
-			if (pipe(pipes[i]) == -1) {
-				perror("pipe");
-				exit(EXIT_FAILURE);
-			}
-			pid_t pid = fork();
+        pthread_t t;
+        pthread_create(&t, NULL, v1_thread, &args);
+        pthread_join(t, NULL);
 
-			if (pid == -1) {
-				// Error al crear el proceso
-				// Manejar el error aquí
-			} else if (pid == 0) {
-				// Código del proceso hijo
-                close(pipes[i][0]); // Cerrar el extremo de lectura de la tubería
-				SimulatedAnnealing SA(regions[i], sys);
-				std::pair<Vector, double> result = SA.v1(regions[i]); // Ejecutar Simulated Annealing y obtener el resultado
-				// Escribir el resultado en la tubería
-				ssize_t write_result = write(pipes[i][1], &result, sizeof(result));
-				if (write_result == -1) {
-					perror("write");
-					exit(EXIT_FAILURE);
-				}
-				close(pipes[i][1]); // Cerrar el extremo de escritura de la tubería
-				exit(0); // Terminar el proceso hijo
-			} else {
-				// Código del proceso padre
-				close(pipes[i][1]); // Cerrar el extremo de escritura de la tubería
-				pids[i] = pid;
-			}
-		}
-
-		// Esperar a que todos los procesos hijos terminen
-		for (int i = 0; i < num_processes; i++) {
-			int status;
-			waitpid(pids[i], &status, 0);
-			std::pair<Vector, double> child_result = std::make_pair(Vector::zeros(box.size()), 0);
-			// Leer el resultado del proceso hijo desde la tubería
-			ssize_t read_result = read(pipes[i][0], &child_result, sizeof(child_result));
-			if (read_result == -1) {
-				perror("read");
-				exit(EXIT_FAILURE);
-			}
-			close(pipes[i][0]); // Cerrar el extremo de lectura de la tubería
-			
-			// Actualizar el mejor punto de expansión encontrado
-			if (child_result.second < best_expansion_fobj) {
-				best_expansion_point = child_result.first;
-				best_expansion_fobj = child_result.second;
-				printf("Best expansion point: %f\n", best_expansion_fobj);
-			}
-		}
-
-		// Utilizar el mejor punto de expansión encontrado
-		exp_point = best_expansion_point;
-	}
+        pthread_mutex_lock(&mtx);
+        exp_point = args.best_expansion_point;
+        pthread_mutex_unlock(&mtx);
+    }
     else if (point == RANDOM){
         for (int i = 0 ; i < box.size() ; i++)
             exp_point[i] = RNG::rand(box[i].lb(),box[i].ub());
