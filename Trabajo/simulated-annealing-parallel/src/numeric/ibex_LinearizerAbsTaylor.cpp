@@ -17,10 +17,33 @@
 #include <vector>
 #include <sys/wait.h>
 #include <unistd.h> 
+#include <mutex>
+#include "/usr/include/pthread.h"
 
 using namespace std;
 
 namespace ibex {
+
+struct ThreadArgs {
+    IntervalVector box;
+    System sys;
+    Vector best_expansion_point;
+    double best_expansion_fobj;
+    pthread_mutex_t mtx;
+};
+
+void* v1_thread(void* args) {
+    ThreadArgs* data = static_cast<ThreadArgs*>(args);
+    SimulatedAnnealing SA(data->box, data->sys);
+    std::pair<Vector, double> result = SA.v1(data->box);
+    pthread_mutex_lock(&(data->mtx));
+    if (result.second < data->best_expansion_fobj) {
+        data->best_expansion_point = result.first;
+        data->best_expansion_fobj = result.second;
+    }
+    pthread_mutex_unlock(&(data->mtx));
+    return NULL;
+}
 
 namespace {
 	class Unsatisfiability : public Exception { };
@@ -58,6 +81,21 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
     Vector exp_point(box.size());
     if (point == MID)
         exp_point = box.mid();
+	else if (point == Simulated_Annealing_pthread){
+        Vector best_expansion_point = box.mid();
+        double best_expansion_fobj = std::numeric_limits<double>::max();
+        pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+
+        ThreadArgs args = {box, sys, best_expansion_point, best_expansion_fobj, mtx};
+
+        pthread_t t;
+        pthread_create(&t, NULL, v1_thread, &args);
+        pthread_join(t, NULL);
+
+        pthread_mutex_lock(&mtx);
+        exp_point = args.best_expansion_point;
+        pthread_mutex_unlock(&mtx);
+    }
     else if (point == Simulated_Annealing) {
 		int NUM_PROCESSES = 5;
 		pid_t pid[NUM_PROCESSES];
