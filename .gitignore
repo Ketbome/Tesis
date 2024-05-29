@@ -6,5 +6,9 @@ Trabajo/simulated-annealing-joa/*
 !Trabajo/simulated-annealing-joa/src*
 Trabajo/simulated-annealing-parallel/*
 !Trabajo/simulated-annealing-parallel/src*
+Trabajo/simulated-annealing-joa-parallel/*
+!Trabajo/simulated-annealing-joa-parallel/src*
+Trabajo/hill-climbing-parallel/*
+!Trabajo/hill-climbing-parallel/src*
 
 .vscode*

@@ -87,6 +87,45 @@ services:
       - ./simulated-annealing-parallel:/app
     command: >
       bash -c "cd /app &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf install &&
+      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 &&
+      tail -f /dev/null"
+    deploy:
+      resources:
+        limits:
+          cpus: "5.0"
+
+  hill-climbing-parallel:
+    build: .
+    tty: true
+    stdin_open: true
+    image: hill-climbing-parallel
+    container_name: hill-climbing-parallel
+    volumes:
+      - ./hill-climbing-parallel:/app
+    command: >
+      bash -c "cd /app &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf install &&
+      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 &&
+      tail -f /dev/null"
+    deploy:
+      resources:
+        limits:
+          cpus: "5.0"
+
+  simulated-annealing-joa-parallel:
+    build: .
+    tty: true
+    stdin_open: true
+    image: simulated-annealing-joa-parallel
+    container_name: simulated-annealing-joa-parallel
+    volumes:
+      - ./simulated-annealing-joa-parallel:/app
+    command: >
+      bash -c "cd /app &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
       ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 &&
       tail -f /dev/null"
