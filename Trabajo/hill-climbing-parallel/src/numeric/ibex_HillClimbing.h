@@ -6,11 +6,12 @@ namespace ibex {
     class HillClimbing{
         public:
             HillClimbing(const IntervalVector& box, const System& sys);
+            double f_obj(const IntervalVector& x, int ctr) const;
 
-            Vector v1(const IntervalVector& box);
-            Vector v2(const IntervalVector& box);
-            Vector v3(const IntervalVector& box);
-            Vector v4(const IntervalVector& box);
+            std::pair<Vector, double> v1(const IntervalVector& box);
+            std::pair<Vector, double> v2(const IntervalVector& box);
+            std::pair<Vector, double> v3(const IntervalVector& box);
+            std::pair<Vector, double> v4(const IntervalVector& box);
         private:
             const IntervalVector& box;
             const System& sys;

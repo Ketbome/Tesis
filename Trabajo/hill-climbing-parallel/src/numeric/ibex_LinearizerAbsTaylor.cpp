@@ -15,11 +15,36 @@
 #include "ibex_NormalizedSystem.h"
 #include <iostream>
 #include <vector>
+#include <sys/wait.h>
+#include <unistd.h> 
+#include <mutex>
+#include "/usr/include/pthread.h"
 
 
 using namespace std;
 
 namespace ibex {
+
+struct ThreadArgs {
+    IntervalVector box;
+    System sys;
+    Vector best_expansion_point;
+    double best_expansion_fobj;
+    pthread_mutex_t mtx;
+};
+
+void* v1_thread(void* args) {
+    ThreadArgs* data = static_cast<ThreadArgs*>(args);
+	HillClimbing hill(data->box, data->sys);
+	std::pair<Vector, double> result = hill.v1(data->box);
+    pthread_mutex_lock(&(data->mtx));
+    if (result.second < data->best_expansion_fobj) {
+        data->best_expansion_point = result.first;
+        data->best_expansion_fobj = result.second;
+    }
+    pthread_mutex_unlock(&(data->mtx));
+    return NULL;
+}
 
 namespace {
 	class Unsatisfiability : public Exception { };
@@ -55,16 +80,72 @@ int LinearizerAbsTaylor::linearize(const IntervalVector& box, LPSolver& _lp_solv
 
 int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
 
-	// expansion point
-	HillClimbing hill(box, sys);
-	//std::cout << "hill climbing" << std::endl;
     Vector exp_point(box.size());
     if (point == MID)
         exp_point = box.mid();
-    else if (point== HILL_CLIMBING){
-            exp_point = hill.v4(box);
-			//std::cout << "exp_point after hill climbing: " << exp_point << std::endl;
-	}
+    else if (point == HILL_CLIMBING_PTHREAD){
+        Vector best_expansion_point = box.mid();
+        double best_expansion_fobj = std::numeric_limits<double>::max();
+        pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+
+        ThreadArgs args = {box, sys, best_expansion_point, best_expansion_fobj, mtx};
+
+        pthread_t t;
+        pthread_create(&t, NULL, v1_thread, &args);
+        pthread_join(t, NULL);
+
+        pthread_mutex_lock(&mtx);
+        exp_point = args.best_expansion_point;
+        pthread_mutex_unlock(&mtx);
+    }
+    else if (point == HILL_CLIMBING) {
+		int NUM_PROCESSES = 5;
+		pid_t pid[NUM_PROCESSES];
+		int pipefd[2];
+		double best_fobj = std::numeric_limits<double>::max();
+		if (pipe(pipefd) == -1) {
+			perror("pipe");
+			exit(EXIT_FAILURE);
+		}
+		
+		
+		for(int i=0; i<NUM_PROCESSES; i++){
+			pid[i] = fork();
+			if (pid[i] < 0) {
+				perror("fork");
+				exit(EXIT_FAILURE);
+			}
+			else if (pid[i] == 0) {
+				close(pipefd[0]);
+				HillClimbing hill(box, sys);
+				std::pair<Vector, double> result = hill.v4(box);
+				if (result.second < best_fobj) {
+					best_fobj = result.second;
+					ssize_t written = write(pipefd[1], &result, sizeof(result));
+					if (written == -1 || written != sizeof(result)) {
+						perror("write");
+						exit(EXIT_FAILURE);
+					}
+				}
+				close(pipefd[1]);
+				exit(EXIT_SUCCESS);
+			}
+		}
+		for(int i=0; i<NUM_PROCESSES; i++){
+			int status;
+			waitpid(pid[i], &status, 0);
+		}
+
+		close(pipefd[1]);
+		std::pair<Vector, double> result = std::make_pair(Vector::zeros(box.size()), 0.0);
+		ssize_t read_bytes = read(pipefd[0], &result, sizeof(result));
+		if (read_bytes == -1 || read_bytes != sizeof(result)) {
+			perror("read");
+			exit(EXIT_FAILURE);
+		}
+		close(pipefd[0]);
+		exp_point = result.first;
+    }
     else if (point == RANDOM){
         for (int i = 0 ; i < box.size() ; i++)
             exp_point[i] = RNG::rand(box[i].lb(),box[i].ub());

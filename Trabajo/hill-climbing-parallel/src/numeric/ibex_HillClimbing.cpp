@@ -4,12 +4,16 @@
 #include <iomanip>
 #include "ibex_Random.h"
 #include <iostream>
+#include <stdlib.h>
 namespace ibex {
-    HillClimbing::HillClimbing(const IntervalVector& box, const System& sys):box(box), sys(sys){
+    HillClimbing::HillClimbing(const IntervalVector& box, const System& sys):box(box), sys(sys){}
 
-
+    double HillClimbing::f_obj(const IntervalVector &x, int ctr) const
+    {
+        return sys.f_ctrs[ctr].eval(x).mid();
     }
-    Vector HillClimbing::v1(const IntervalVector& box){
+
+    std::pair<Vector, double> HillClimbing::v1(const IntervalVector& box){
         IntervalVector inicial(box.size());
         //std::cout<<"asdasdas"<<std::endl;
         int sizee=box.size();
@@ -51,11 +55,13 @@ namespace ibex {
         }
             
 
-        //----------------------------------------------
-        return inicial.mid();
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
     }
 
-        Vector HillClimbing::v2(const IntervalVector& box){
+        std::pair<Vector, double> HillClimbing::v2(const IntervalVector& box){
         IntervalVector inicial(box.size());
         int sizee=box.size();
         IntervalVector mejor_vecino(box.size());
@@ -96,9 +102,13 @@ namespace ibex {
             iter++;
         }
         //----------------------------------------------
-        return inicial.mid();
+        
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
     }
-        Vector HillClimbing::v3(const IntervalVector& box){
+        std::pair<Vector, double> HillClimbing::v3(const IntervalVector& box){
         IntervalVector inicial(box.size());
         double suma=0;
         double mejor=0;
@@ -145,10 +155,14 @@ namespace ibex {
             iter++;
         }
         //----------------------------------------------
-        return inicial.mid();
+        
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
     }
 
-        Vector HillClimbing::v4(const IntervalVector& box){
+        std::pair<Vector, double> HillClimbing::v4(const IntervalVector& box){
         IntervalVector inicial(box.size());
         IntervalVector mejor_vecino(box.size());
         double suma=0;
@@ -197,6 +211,10 @@ namespace ibex {
             iter++;
         }
         //----------------------------------------------
-        return inicial.mid();
+        
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
     }
 }

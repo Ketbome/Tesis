@@ -12,6 +12,7 @@
 
 #include "ibex_Linearizer.h"
 #include "ibex_System.h"
+#include <pthread.h>
 
 
 namespace ibex {
@@ -37,7 +38,7 @@ public:
 	 * - MID        - The mid point of the box
 	 * - RANDOM     - A random point inside the box
 	 */
-	typedef enum  {MID, RANDOM, HILL_CLIMBING} point_policy;
+	typedef enum  {MID, RANDOM, HILL_CLIMBING, HILL_CLIMBING_PTHREAD} point_policy;
 	/**
 	 * \brief Creates the X_Taylor linearizer.
 	 *
