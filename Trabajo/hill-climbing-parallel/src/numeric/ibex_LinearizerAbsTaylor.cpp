@@ -118,7 +118,7 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
 			else if (pid[i] == 0) {
 				close(pipefd[0]);
 				HillClimbing hill(box, sys);
-				std::pair<Vector, double> result = hill.v4(box);
+				std::pair<Vector, double> result = hill.v1(box);
 				if (result.second < best_fobj) {
 					best_fobj = result.second;
 					ssize_t written = write(pipefd[1], &result, sizeof(result));
@@ -139,10 +139,6 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
 		close(pipefd[1]);
 		std::pair<Vector, double> result = std::make_pair(Vector::zeros(box.size()), 0.0);
 		ssize_t read_bytes = read(pipefd[0], &result, sizeof(result));
-		if (read_bytes == -1 || read_bytes != sizeof(result)) {
-			perror("read");
-			exit(EXIT_FAILURE);
-		}
 		close(pipefd[0]);
 		exp_point = result.first;
     }
