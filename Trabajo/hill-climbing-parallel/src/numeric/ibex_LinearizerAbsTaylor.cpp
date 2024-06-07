@@ -84,20 +84,32 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
     if (point == MID)
         exp_point = box.mid();
     else if (point == HILL_CLIMBING_PTHREAD){
-        Vector best_expansion_point = box.mid();
-        double best_expansion_fobj = std::numeric_limits<double>::max();
-        pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+		int n = 10;
+		std::vector<pthread_t> threads(n);
+		std::vector<ThreadArgs> args(n);
 
-        ThreadArgs args = {box, sys, best_expansion_point, best_expansion_fobj, mtx};
+		for(int i = 0; i < n; i++) {
+			args[i] = {box, sys, box.mid(), std::numeric_limits<double>::max(), PTHREAD_MUTEX_INITIALIZER};
+			pthread_create(&threads[i], NULL, v1_thread, &args[i]);
+		}
 
-        pthread_t t;
-        pthread_create(&t, NULL, v1_thread, &args);
-        pthread_join(t, NULL);
+		for(int i = 0; i < n; i++) {
+			pthread_join(threads[i], NULL);
+		}
 
-        pthread_mutex_lock(&mtx);
-        exp_point = args.best_expansion_point;
-        pthread_mutex_unlock(&mtx);
-    }
+		double best_expansion_fobj = std::numeric_limits<double>::max();
+		Vector best_expansion_point;
+		for(int i = 0; i < n; i++) {
+			pthread_mutex_lock(&args[i].mtx);
+			if(args[i].best_expansion_fobj < best_expansion_fobj) {
+				best_expansion_fobj = args[i].best_expansion_fobj;
+				best_expansion_point = args[i].best_expansion_point;
+			}
+			pthread_mutex_unlock(&args[i].mtx);
+		}
+
+		exp_point = best_expansion_point;
+	}
     else if (point == HILL_CLIMBING) {
 		int NUM_PROCESSES = 5;
 		pid_t pid[NUM_PROCESSES];
