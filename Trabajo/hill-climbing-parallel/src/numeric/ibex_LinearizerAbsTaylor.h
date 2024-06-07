@@ -44,7 +44,7 @@ public:
 	 *
 	 * \param sys             - The system (extended or not).
 	 */
-	LinearizerAbsTaylor(const System& sys, point_policy = HILL_CLIMBING);
+	LinearizerAbsTaylor(const System& sys, point_policy = HILL_CLIMBING_PTHREAD);
 
 	/**
 	 * \brief Deletes this.
