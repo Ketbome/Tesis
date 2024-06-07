@@ -19,32 +19,13 @@
 #include <unistd.h> 
 #include <mutex>
 #include "/usr/include/pthread.h"
+#include <mutex>
+#include <thread>
 
 
 using namespace std;
 
 namespace ibex {
-
-struct ThreadArgs {
-    IntervalVector box;
-    System sys;
-    Vector best_expansion_point;
-    double best_expansion_fobj;
-    pthread_mutex_t mtx;
-};
-
-void* v1_thread(void* args) {
-    ThreadArgs* data = static_cast<ThreadArgs*>(args);
-	HillClimbing hill(data->box, data->sys);
-	std::pair<Vector, double> result = hill.v1(data->box);
-    pthread_mutex_lock(&(data->mtx));
-    if (result.second < data->best_expansion_fobj) {
-        data->best_expansion_point = result.first;
-        data->best_expansion_fobj = result.second;
-    }
-    pthread_mutex_unlock(&(data->mtx));
-    return NULL;
-}
 
 namespace {
 	class Unsatisfiability : public Exception { };
@@ -83,32 +64,29 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
     Vector exp_point(box.size());
     if (point == MID)
         exp_point = box.mid();
-    else if (point == HILL_CLIMBING_PTHREAD){
-		int n = 10;
-		std::vector<pthread_t> threads(n);
-		std::vector<ThreadArgs> args(n);
+    else if (point == HILL_CLIMBING_PTHREAD) {
+        int NUM_THREADS = 12;
+		std::thread threads[NUM_THREADS];
+		std::mutex mtx;
+		double best_fobj = std::numeric_limits<double>::max();
 
-		for(int i = 0; i < n; i++) {
-			args[i] = {box, sys, box.mid(), std::numeric_limits<double>::max(), PTHREAD_MUTEX_INITIALIZER};
-			pthread_create(&threads[i], NULL, v1_thread, &args[i]);
+		for(int i=0; i<NUM_THREADS; i++){
+			threads[i] = std::thread([this, &box, i, &exp_point, &mtx, &best_fobj](){
+				HillClimbing hill(box, sys);
+				std::pair<Vector, double> result = hill.v1(box);
+				std::lock_guard<std::mutex> lock(mtx);
+				if(result.second < best_fobj){
+					best_fobj = result.second;
+					exp_point = result.first;
+				}
+			});
 		}
 
-		for(int i = 0; i < n; i++) {
-			pthread_join(threads[i], NULL);
+		for(int i=0; i<NUM_THREADS; i++){
+			threads[i].join();
 		}
 
-		double best_expansion_fobj = std::numeric_limits<double>::max();
-		Vector best_expansion_point;
-		for(int i = 0; i < n; i++) {
-			pthread_mutex_lock(&args[i].mtx);
-			if(args[i].best_expansion_fobj < best_expansion_fobj) {
-				best_expansion_fobj = args[i].best_expansion_fobj;
-				best_expansion_point = args[i].best_expansion_point;
-			}
-			pthread_mutex_unlock(&args[i].mtx);
-		}
-
-		exp_point = best_expansion_point;
+		exp_point = box.mid();
 	}
     else if (point == HILL_CLIMBING) {
 		int NUM_PROCESSES = 5;
