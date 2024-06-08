@@ -11,6 +11,7 @@ services:
       - ./simulated-annealing:/app
     command: >
       bash -c "cd /app &&
+      rm -f simulated-annealing.log &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
       files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
@@ -35,6 +36,7 @@ services:
       - ./simulated-annealing-joa:/app
     command: >
       bash -c "cd /app &&
+      rm -f simulated-annealing-joa.log &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
       files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
@@ -59,6 +61,7 @@ services:
       - ./hill-climbing:/app
     command: >
       bash -c "cd /app &&
+      rm -f hill-climbing.log &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
       files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
@@ -83,6 +86,7 @@ services:
       - ./abstaylor:/app
     command: >
       bash -c "cd /app &&
+      rm -f abstaylor.log &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
       files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
@@ -107,6 +111,7 @@ services:
       - ./simulated-annealing-parallel:/app
     command: >
       bash -c "cd /app &&
+      rm -f simulated-annealing-parallel.log &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
       files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
@@ -131,7 +136,7 @@ services:
       - ./hill-climbing-parallel:/app
     command: >
       bash -c "cd /app &&
-      rm -f commands.log &&
+      rm -f hill-climbing-parallel.log &&
       files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
       for file in \$${files[@]}; do
         for i in {1..5}; do
@@ -154,6 +159,7 @@ services:
       - ./simulated-annealing-joa-parallel:/app
     command: >
       bash -c "cd /app &&
+      rm -f simulated-annealing-joa-parallel.log &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
       files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
