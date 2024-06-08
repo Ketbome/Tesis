@@ -4,7 +4,11 @@ import pandas as pd
 
 # Define the folders containing the log files
 folders = [
-    "hill-climbing-parallel"
+    "hill-climbing",
+    "simulated-annealing",
+    "abstaylor",
+    "simulated-annealing-joa",
+    "hill-climbing-parallel",
 ]
 
 # Define a function to convert log files to txt files and process them
@@ -38,11 +42,21 @@ csv_files = [process_log_files(folder) for folder in folders]
 # Combine all CSV files into one and calculate averages
 combined_df = pd.concat([pd.read_csv(csv_file) for csv_file in csv_files])
 
-# Calculate averages
-df_avg = combined_df.groupby(['Solucion Empleada', 'Problema']).agg({'Tiempo': 'mean', 'Nodos': 'mean'}).reset_index()
+# Calculate averages and round to 2 decimal places
+df_avg = combined_df.groupby(['Solucion Empleada', 'Problema']).agg({'Tiempo': 'mean', 'Nodos': 'mean'}).round(2).reset_index()
+
+# Pivot the DataFrame
+df_pivot = df_avg.pivot_table(index='Problema', columns='Solucion Empleada', values=['Tiempo', 'Nodos'])
 
 # Save the combined averages to a single CSV file
-df_avg.to_csv('combined_averages.csv', index=False)
+df_pivot.to_csv('combined_averages.csv')
+
+# Highlight the best values in each row for visualization
+def highlight_best(s):
+    is_best = s == s.min()
+    return ['background-color: yellow' if v else '' for v in is_best]
+
+df_pivot_styled = df_pivot.style.apply(highlight_best, subset=pd.IndexSlice[:, ['Tiempo', 'Nodos']])
 
 print("Averages calculated and saved to combined_averages.csv")
 
@@ -50,4 +64,5 @@ print("Averages calculated and saved to combined_averages.csv")
 #docker-compose up hill-climbing-parallel -d --build
 #docker-compose up simulated-annealing-parallel -d --build
 #docker-compose up simulated-annealing-joa-parallel -d --build
+#python Data/bench.py
 
