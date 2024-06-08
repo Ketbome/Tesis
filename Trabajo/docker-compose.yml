@@ -13,8 +13,13 @@ services:
       bash -c "cd /app &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
-      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
-      tail -f /dev/null"
+      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      for file in \$${files[@]}; do
+        for i in {1..5}; do
+          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> simulated-annealing.log
+        done
+      done &&
+      echo 'Ejecución completada'"
     deploy:
       resources:
         limits:
@@ -32,8 +37,13 @@ services:
       bash -c "cd /app &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
-      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
-      tail -f /dev/null"
+      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      for file in \$${files[@]}; do
+        for i in {1..5}; do
+          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> simulated-annealing-joa.log
+        done
+      done &&
+      echo 'Ejecución completada'"
     deploy:
       resources:
         limits:
@@ -51,8 +61,13 @@ services:
       bash -c "cd /app &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
-      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
-      tail -f /dev/null"
+      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      for file in \$${files[@]}; do
+        for i in {1..5}; do
+          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> hill-climbing.log
+        done
+      done &&
+      echo 'Ejecución completada'"
     deploy:
       resources:
         limits:
@@ -70,8 +85,13 @@ services:
       bash -c "cd /app &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
-      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 >> commands.log &&
-      tail -f /dev/null"
+      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      for file in \$${files[@]}; do
+        for i in {1..5}; do
+          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> abstaylor.log
+        done
+      done &&
+      echo 'Ejecución completada'"
     deploy:
       resources:
         limits:
@@ -89,8 +109,13 @@ services:
       bash -c "cd /app &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
-      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 &&
-      tail -f /dev/null"
+      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      for file in \$${files[@]}; do
+        for i in {1..5}; do
+          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> simulated-annealing-parallel.log
+        done
+      done &&
+      echo 'Ejecución completada'"
     deploy:
       resources:
         limits:
@@ -106,10 +131,14 @@ services:
       - ./hill-climbing-parallel:/app
     command: >
       bash -c "cd /app &&
-      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
-      ./waf install &&
-      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 &&
-      tail -f /dev/null"
+      rm -f commands.log &&
+      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      for file in \$${files[@]}; do
+        for i in {1..5}; do
+          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> hill-climbing-parallel.log
+        done
+      done &&
+      echo 'Ejecución completada'"
     deploy:
       resources:
         limits:
@@ -127,8 +156,13 @@ services:
       bash -c "cd /app &&
       ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
       ./waf install &&
-      ./__build__/src/ibexopt benchs/optim/medium/ex14_2_7.bch --random-seed=1 &&
-      tail -f /dev/null"
+      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      for file in \$${files[@]}; do
+        for i in {1..5}; do
+          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> simulated-annealing-joa-parallel.log
+        done
+      done &&
+      echo 'Ejecución completada'"
     deploy:
       resources:
         limits:
