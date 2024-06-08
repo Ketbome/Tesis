@@ -18,33 +18,11 @@
 #include <sys/wait.h>
 #include <unistd.h> 
 #include <mutex>
-#include "/usr/include/pthread.h"
+#include <thread>
 
 using namespace std;
 
 namespace ibex {
-
-struct ThreadArgs {
-    IntervalVector box;
-    System sys;
-    Vector best_expansion_point;
-    double best_expansion_fobj;
-    pthread_mutex_t mtx;
-};
-
-void* v1_thread(void* args) {
-    ThreadArgs* data = static_cast<ThreadArgs*>(args);
-    SimulatedAnnealing SA(data->box, data->sys);
-    std::pair<Vector, double> result = SA.v1(data->box);
-    pthread_mutex_lock(&(data->mtx));
-    if (result.second < data->best_expansion_fobj) {
-        data->best_expansion_point = result.first;
-        data->best_expansion_fobj = result.second;
-    }
-    pthread_mutex_unlock(&(data->mtx));
-    return NULL;
-}
-
 namespace {
 	class Unsatisfiability : public Exception { };
 	class NoExpansionPoint : public Exception { };
@@ -89,8 +67,8 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
 
 		for(int i=0; i<NUM_THREADS; i++){
 			threads[i] = std::thread([this, &box, i, &exp_point, &mtx, &best_fobj](){
-				HillClimbing hill(box, sys);
-				std::pair<Vector, double> result = hill.v1(box);
+				SimulatedAnnealing SA(box, sys);
+				std::pair<Vector, double> result = SA.v1(box);
 				std::lock_guard<std::mutex> lock(mtx);
 				if(result.second < best_fobj){
 					best_fobj = result.second;
