@@ -49,17 +49,41 @@ df_avg = combined_df.groupby(['Solucion Empleada', 'Problema']).agg({'Tiempo': '
 # Pivot the DataFrame
 df_pivot = df_avg.pivot_table(index='Problema', columns='Solucion Empleada', values=['Tiempo', 'Nodos'])
 
-# Save the combined averages to a single CSV file
-df_pivot.to_csv('combined_averages.csv')
+# Create a DataFrame for times and nodes
+df_times = df_pivot['Tiempo']
+df_nodes = df_pivot['Nodos']
 
-# Highlight the best values in each row for visualization
-def highlight_best(s):
-    is_best = s == s.min()
-    return ['background-color: yellow' if v else '' for v in is_best]
+# Create a Pandas Excel writer using XlsxWriter as the engine.
+writer = pd.ExcelWriter('combined_averages.xlsx', engine='xlsxwriter')
 
-df_pivot_styled = df_pivot.style.apply(highlight_best, subset=pd.IndexSlice[:, ['Tiempo', 'Nodos']])
+# Write the time DataFrame to the first sheet
+df_times.to_excel(writer, sheet_name='Tiempos')
 
-print("Averages calculated and saved to combined_averages.csv")
+# Write the nodes DataFrame to the second sheet
+df_nodes.to_excel(writer, sheet_name='Nodos')
+
+# Get the xlsxwriter workbook and worksheet objects.
+workbook  = writer.book
+
+# Get the xlsxwriter workbook and worksheet objects.
+workbook  = writer.book
+
+# Define a format for the minimum value in a row.
+min_format = workbook.add_format({'bg_color': '#C6EFCE'})
+
+# Apply the conditional format to the cells in the 'Tiempos' and 'Nodos' worksheets.
+for sheet_name, df in zip(['Tiempos', 'Nodos'], [df_times, df_nodes]):
+    worksheet = writer.sheets[sheet_name]
+    for row in range(1, len(df) + 1):  # Skip the header row
+        min_col = df.iloc[row - 1].idxmin()
+        min_col_idx = df.columns.get_loc(min_col) + 2  # +1 for zero-indexing, +1 for skipping index column
+        # Apply the conditional formatting rule to the cell with the minimum value in the row.
+        worksheet.conditional_format(f'{chr(64 + min_col_idx)}{row + 1}', {'type': 'no_errors', 'format': min_format})
+
+# Close the Pandas Excel writer and output the Excel file.
+writer.close()
+
+print("Data saved to combined_averages.xlsx")
 
 #docker-compose up simulated-annealing simulated-annealing-joa hill-climbing abstaylor -d --build
 #docker-compose up hill-climbing-parallel -d --build
