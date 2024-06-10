@@ -9,6 +9,7 @@ folders = [
     "abstaylor",
     "simulated-annealing-joa",
     "hill-climbing-parallel",
+    "simulated-annealing-parallel",
 ]
 
 # Define a function to convert log files to txt files and process them
