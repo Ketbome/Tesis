@@ -15,6 +15,10 @@
 #include "ibex_NormalizedSystem.h"
 #include <iostream>
 #include <vector>
+#include <sys/wait.h>
+#include <unistd.h> 
+#include <mutex>
+#include <thread>
 
 
 using namespace std;
@@ -54,16 +58,81 @@ int LinearizerAbsTaylor::linearize(const IntervalVector& box, LPSolver& _lp_solv
 }
 
 int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
-
-	// expansion point
-	SimulatedAnnealing SA(box, sys);
-	//std::cout << "hill climbing" << std::endl;
-    Vector exp_point(box.size());
+	Vector exp_point(box.size());
     if (point == MID)
         exp_point = box.mid();
-    else if (point== Simulated_Annealing){
-            exp_point = SA.v7(box);
+    else if (point == Simulated_Annealing_pthread) {
+        int NUM_THREADS = 12;
+		std::thread threads[NUM_THREADS];
+		std::mutex mtx;
+		double best_fobj = std::numeric_limits<double>::max();
+
+		for(int i=0; i<NUM_THREADS; i++){
+			threads[i] = std::thread([this, &box, i, &exp_point, &mtx, &best_fobj](){
+				SimulatedAnnealing SA(box, sys);
+				std::pair<Vector, double> result = SA.v7(box);
+				std::lock_guard<std::mutex> lock(mtx);
+				if(result.second < best_fobj){
+					best_fobj = result.second;
+					exp_point = result.first;
+				}
+			});
+		}
+
+		for(int i=0; i<NUM_THREADS; i++){
+			threads[i].join();
+		}
+
+		exp_point = box.mid();
 	}
+    else if (point == Simulated_Annealing) {
+		int NUM_PROCESSES = 5;
+		pid_t pid[NUM_PROCESSES];
+		int pipefd[2];
+		double best_fobj = std::numeric_limits<double>::max();
+		if (pipe(pipefd) == -1) {
+			perror("pipe");
+			exit(EXIT_FAILURE);
+		}
+		
+		
+		for(int i=0; i<NUM_PROCESSES; i++){
+			pid[i] = fork();
+			if (pid[i] < 0) {
+				perror("fork");
+				exit(EXIT_FAILURE);
+			}
+			else if (pid[i] == 0) {
+				close(pipefd[0]);
+				SimulatedAnnealing SA(box, sys);
+				std::pair<Vector, double> result = SA.v7(box);
+				if (result.second < best_fobj) {
+					best_fobj = result.second;
+					ssize_t written = write(pipefd[1], &result, sizeof(result));
+					if (written == -1 || written != sizeof(result)) {
+						perror("write");
+						exit(EXIT_FAILURE);
+					}
+				}
+				close(pipefd[1]);
+				exit(EXIT_SUCCESS);
+			}
+		}
+		for(int i=0; i<NUM_PROCESSES; i++){
+			int status;
+			waitpid(pid[i], &status, 0);
+		}
+
+		close(pipefd[1]);
+		std::pair<Vector, double> result = std::make_pair(Vector::zeros(box.size()), 0.0);
+		ssize_t read_bytes = read(pipefd[0], &result, sizeof(result));
+		if (read_bytes == -1 || read_bytes != sizeof(result)) {
+			perror("read");
+			exit(EXIT_FAILURE);
+		}
+		close(pipefd[0]);
+		exp_point = result.first;
+    }
     else if (point == RANDOM){
         for (int i = 0 ; i < box.size() ; i++)
             exp_point[i] = RNG::rand(box[i].lb(),box[i].ub());

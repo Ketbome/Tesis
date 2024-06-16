@@ -100,7 +100,7 @@ namespace ibex {
         return mejor_sol;
     }
 
-    Vector SimulatedAnnealing::v1(const IntervalVector& box) {
+    std::pair<Vector, double> SimulatedAnnealing::v1(const IntervalVector& box) {
         IntervalVector inicial(box.size());
 
         double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
@@ -148,274 +148,295 @@ namespace ibex {
             iter++;
         }
 
-        return inicial.mid();
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
     }
 
-Vector SimulatedAnnealing::v2(const IntervalVector& box) {
-    IntervalVector inicial(box.size());
-    double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
-    int restriccion = std::round(restriccion1);
+    std::pair<Vector, double> SimulatedAnnealing::v2(const IntervalVector& box) {
+        IntervalVector inicial(box.size());
+        double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
+        int restriccion = std::round(restriccion1);
 
-    for (int i = 0; i < box.size(); i++) {
-        double random_num = RNG::rand(box[i].lb(), box[i].ub());
-        inicial[i] = Interval(random_num, random_num);
-    }
-
-    double mejor = f_obj(inicial, restriccion);  
-    double temperatura = 1.0;
-    double alpha = 0.95;
-    bool cambio = true;
-    IntervalVector vecino = inicial;
-    int iter = 0;
-
-    while (cambio && iter < 50) {
-        cambio = false;
-
-        Vector vecino_vec = inicial.mid();  // Convertir IntervalVector a Vector
-        vecino_vec = fun_per2(vecino_vec, box, restriccion); // Aplicar perturbación
-        vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
-
-        double delta = f_obj(vecino, restriccion) - mejor;
-        double randomReal = (double) rand() / (double) RAND_MAX;
-
-        Interval expInterval = exp(-delta / temperatura);
-        double expValue = expInterval.mid();
-
-        if (delta < 0 || randomReal < expValue) {
-            mejor = f_obj(vecino, restriccion);
-            inicial = vecino;
-            cambio = true;
-        } else {
-            vecino = inicial;
+        for (int i = 0; i < box.size(); i++) {
+            double random_num = RNG::rand(box[i].lb(), box[i].ub());
+            inicial[i] = Interval(random_num, random_num);
         }
 
-        temperatura = alpha * temperatura; 
-        iter++;
-    }
+        double mejor = f_obj(inicial, restriccion);  
+        double temperatura = 1.0;
+        double alpha = 0.95;
+        bool cambio = true;
+        IntervalVector vecino = inicial;
+        int iter = 0;
 
-    return inicial.mid();
-}
+        while (cambio && iter < 50) {
+            cambio = false;
 
-Vector SimulatedAnnealing::v3(const IntervalVector& box) {
-    IntervalVector inicial(box.size());
-    double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
-    int restriccion = std::round(restriccion1);
+            Vector vecino_vec = inicial.mid();  // Convertir IntervalVector a Vector
+            vecino_vec = fun_per2(vecino_vec, box, restriccion); // Aplicar perturbación
+            vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
 
-    for (int i = 0; i < box.size(); i++) {
-        double random_num = RNG::rand(box[i].lb(), box[i].ub());
-        inicial[i] = Interval(random_num, random_num);
-    }
+            double delta = f_obj(vecino, restriccion) - mejor;
+            double randomReal = (double) rand() / (double) RAND_MAX;
 
-    double mejor = f_obj(inicial, restriccion);  
-    double temperatura = 100;
-    double alpha = 0.95;
-    bool cambio = true;
-    IntervalVector vecino = inicial;
-    int iter = 0;
+            Interval expInterval = exp(-delta / temperatura);
+            double expValue = expInterval.mid();
 
-    while (cambio && iter < 50) {
-        cambio = false;
+            if (delta < 0 || randomReal < expValue) {
+                mejor = f_obj(vecino, restriccion);
+                inicial = vecino;
+                cambio = true;
+            } else {
+                vecino = inicial;
+            }
 
-        Vector vecino_vec = inicial.mid();  // Convertir IntervalVector a Vector
-        vecino_vec = fun_per2(vecino_vec, box, restriccion); // Aplicar perturbación
-        vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
-
-        double delta = f_obj(vecino, restriccion) - mejor;
-        double randomReal = (double) rand() / (double) RAND_MAX;
-
-        Interval expInterval = exp(-delta / temperatura);
-        double expValue = expInterval.mid();
-
-        if (delta < 0 || randomReal < expValue) {
-            mejor = f_obj(vecino, restriccion);
-            inicial = vecino;
-            cambio = true;
-        } else {
-            vecino = inicial;
+            temperatura = alpha * temperatura; 
+            iter++;
         }
 
-        temperatura = temperatura * (std::exp(-alpha * iter)); 
-        iter++;
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
     }
 
-    return inicial.mid();
-}
+    std::pair<Vector, double> SimulatedAnnealing::v3(const IntervalVector& box) {
+        IntervalVector inicial(box.size());
+        double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
+        int restriccion = std::round(restriccion1);
 
-Vector SimulatedAnnealing::v4(const IntervalVector& box) {
-    IntervalVector inicial(box.size());
-    double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
-    int restriccion = std::round(restriccion1);
-
-    for (int i = 0; i < box.size(); i++) {
-        double random_num = RNG::rand(box[i].lb(), box[i].ub());
-        inicial[i] = Interval(random_num, random_num);
-    }
-
-    double mejor = f_obj(inicial, restriccion);  
-    double temperatura = 1;
-    double alpha = 0.95;
-    double T_inicial = 1;
-    bool cambio = true;
-    IntervalVector vecino = inicial;
-    int iter = 0;
-
-    while (cambio && iter < 50) {
-        cambio = false;
-
-        Vector vecino_vec = inicial.mid();  // Convertir IntervalVector a Vector
-        vecino_vec = fun_per2(vecino_vec, box, restriccion); // Aplicar perturbación
-        vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
-
-        double delta = f_obj(vecino, restriccion) - mejor;
-        double randomReal = (double) rand() / (double) RAND_MAX;
-
-        Interval expInterval = exp(-delta / temperatura);
-        double expValue = expInterval.mid();
-
-        if (delta < 0 || randomReal < expValue) {
-            mejor = f_obj(vecino, restriccion);
-            inicial = vecino;
-            cambio = true;
-        } else {
-            vecino = inicial;
+        for (int i = 0; i < box.size(); i++) {
+            double random_num = RNG::rand(box[i].lb(), box[i].ub());
+            inicial[i] = Interval(random_num, random_num);
         }
 
-        temperatura = T_inicial * (std::log(alpha + iter)); 
-        iter++;
-    }
+        double mejor = f_obj(inicial, restriccion);  
+        double temperatura = 100;
+        double alpha = 0.95;
+        bool cambio = true;
+        IntervalVector vecino = inicial;
+        int iter = 0;
 
-    return inicial.mid();
-}
+        while (cambio && iter < 50) {
+            cambio = false;
 
-Vector SimulatedAnnealing::v5(const IntervalVector& box) {
-    IntervalVector inicial(box.size());
-    double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
-    int restriccion = std::round(restriccion1);
+            Vector vecino_vec = inicial.mid();  // Convertir IntervalVector a Vector
+            vecino_vec = fun_per2(vecino_vec, box, restriccion); // Aplicar perturbación
+            vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
 
-    for (int i = 0; i < box.size(); i++) {
-        double random_num = RNG::rand(box[i].lb(), box[i].ub());
-        inicial[i] = Interval(random_num, random_num);
-    }
+            double delta = f_obj(vecino, restriccion) - mejor;
+            double randomReal = (double) rand() / (double) RAND_MAX;
 
-    double mejor = f_obj(inicial, restriccion);  
-    double temperatura = 1.0;
-    double b = 2;
-    double T_inicial = 1;
-    bool cambio = true;
-    IntervalVector vecino = inicial;
-    int iter = 0;
+            Interval expInterval = exp(-delta / temperatura);
+            double expValue = expInterval.mid();
 
-    while (cambio && iter < 50) {
-        cambio = false;
+            if (delta < 0 || randomReal < expValue) {
+                mejor = f_obj(vecino, restriccion);
+                inicial = vecino;
+                cambio = true;
+            } else {
+                vecino = inicial;
+            }
 
-        Vector vecino_vec = inicial.mid();  // Convertir IntervalVector a Vector
-        vecino_vec = fun_per2(vecino_vec, box, restriccion); // Aplicar perturbación
-        vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
-
-        double delta = f_obj(vecino, restriccion) - mejor;
-        double randomReal = (double) rand() / (double) RAND_MAX;
-
-        Interval expInterval = exp(-delta / temperatura);
-        double expValue = expInterval.mid(); // Obteniendo el punto medio del intervalo
-
-        if (delta < 0 || randomReal < expValue) {
-            mejor = f_obj(vecino, restriccion);
-            inicial = vecino;
-            cambio = true;
-        } else {
-            vecino = inicial;
-        }
-        temperatura = temperatura * (T_inicial / (std::pow(1 + iter, b))); 
-        iter++;
-    }
-
-    return inicial.mid();
-}
-
-Vector SimulatedAnnealing::v6(const IntervalVector& box) {
-    IntervalVector inicial(box.size());
-    double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
-    int restriccion = std::round(restriccion1);
-
-    // Generar solución inicial
-    for (int i = 0; i < box.size(); i++) {
-        double random_num = RNG::rand(box[i].lb(), box[i].ub());
-        inicial[i] = Interval(random_num, random_num);
-    }
-
-    double mejor_eval = f_obj(inicial, restriccion);  
-    double temperatura = 1.0;
-    double alpha = 0.95;
-    IntervalVector vecino = inicial;
-    int iter = 0;
-
-    while (iter < 50) {
-        // Aplicar la función de perturbación
-        Vector vecino_vec = fun_per3(inicial.mid(), box);
-        vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
-
-        double eval_vecino = f_obj(vecino, restriccion);
-        double delta = eval_vecino - mejor_eval;
-        double randomReal = (double) rand() / (double) RAND_MAX;
-
-        Interval expInterval = exp(-delta / temperatura);
-        double expValue = expInterval.mid(); // Obteniendo el punto medio del intervalo
-
-        if (delta < 0 || randomReal < expValue) { // Comparando con el punto medio
-            mejor_eval = eval_vecino;
-            inicial = vecino;
+            temperatura = temperatura * (std::exp(-alpha * iter)); 
+            iter++;
         }
 
-        // Enfriar la temperatura
-        temperatura *= alpha;
-        iter++;
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
     }
 
-    return inicial.mid();
-}
-Vector SimulatedAnnealing::v7(const IntervalVector& box) {
-    IntervalVector inicial(box.size());
-    double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
-    int restriccion = std::round(restriccion1);
+    std::pair<Vector, double> SimulatedAnnealing::v4(const IntervalVector& box) {
+        IntervalVector inicial(box.size());
+        double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
+        int restriccion = std::round(restriccion1);
 
-    for (int i = 0; i < box.size(); i++) {
-        double random_num = RNG::rand(box[i].lb(), box[i].ub());
-        inicial[i] = Interval(random_num, random_num);
-    }
-
-    double mejor = f_obj(inicial, restriccion);  
-    double temperatura = 1.0;
-    double alpha = 0.95;
-    bool cambio = true;
-    IntervalVector vecino = inicial;
-    int iter = 0;
-
-    while (cambio && iter < 500) {
-        cambio = false;
-
-        Vector vecino_vec = inicial.mid();  // Convertir IntervalVector a Vector
-        vecino_vec = fun_per3(vecino_vec, box); // Aplicar perturbación
-        vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
-
-        double delta = f_obj(vecino, restriccion) - mejor;
-        double randomReal = (double) rand() / (double) RAND_MAX;
-
-        Interval expInterval = exp(-delta / temperatura);
-        double expValue = expInterval.mid();
-
-        if (delta < 0 || randomReal < expValue) {
-            mejor = f_obj(vecino, restriccion);
-            inicial = vecino;
-            cambio = true;
-        } else {
-            vecino = inicial;
+        for (int i = 0; i < box.size(); i++) {
+            double random_num = RNG::rand(box[i].lb(), box[i].ub());
+            inicial[i] = Interval(random_num, random_num);
         }
 
-        temperatura = alpha * temperatura; 
-        iter++;
+        double mejor = f_obj(inicial, restriccion);  
+        double temperatura = 1;
+        double alpha = 0.95;
+        double T_inicial = 1;
+        bool cambio = true;
+        IntervalVector vecino = inicial;
+        int iter = 0;
+
+        while (cambio && iter < 50) {
+            cambio = false;
+
+            Vector vecino_vec = inicial.mid();  // Convertir IntervalVector a Vector
+            vecino_vec = fun_per2(vecino_vec, box, restriccion); // Aplicar perturbación
+            vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
+
+            double delta = f_obj(vecino, restriccion) - mejor;
+            double randomReal = (double) rand() / (double) RAND_MAX;
+
+            Interval expInterval = exp(-delta / temperatura);
+            double expValue = expInterval.mid();
+
+            if (delta < 0 || randomReal < expValue) {
+                mejor = f_obj(vecino, restriccion);
+                inicial = vecino;
+                cambio = true;
+            } else {
+                vecino = inicial;
+            }
+
+            temperatura = T_inicial * (std::log(alpha + iter)); 
+            iter++;
+        }
+
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
     }
 
-    return inicial.mid();
-}
+    std::pair<Vector, double> SimulatedAnnealing::v5(const IntervalVector& box) {
+        IntervalVector inicial(box.size());
+        double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
+        int restriccion = std::round(restriccion1);
+
+        for (int i = 0; i < box.size(); i++) {
+            double random_num = RNG::rand(box[i].lb(), box[i].ub());
+            inicial[i] = Interval(random_num, random_num);
+        }
+
+        double mejor = f_obj(inicial, restriccion);  
+        double temperatura = 1.0;
+        double b = 2;
+        double T_inicial = 1;
+        bool cambio = true;
+        IntervalVector vecino = inicial;
+        int iter = 0;
+
+        while (cambio && iter < 50) {
+            cambio = false;
+
+            Vector vecino_vec = inicial.mid();  // Convertir IntervalVector a Vector
+            vecino_vec = fun_per2(vecino_vec, box, restriccion); // Aplicar perturbación
+            vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
+
+            double delta = f_obj(vecino, restriccion) - mejor;
+            double randomReal = (double) rand() / (double) RAND_MAX;
+
+            Interval expInterval = exp(-delta / temperatura);
+            double expValue = expInterval.mid(); // Obteniendo el punto medio del intervalo
+
+            if (delta < 0 || randomReal < expValue) {
+                mejor = f_obj(vecino, restriccion);
+                inicial = vecino;
+                cambio = true;
+            } else {
+                vecino = inicial;
+            }
+            temperatura = temperatura * (T_inicial / (std::pow(1 + iter, b))); 
+            iter++;
+        }
+
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
+    }
+
+    std::pair<Vector, double> SimulatedAnnealing::v6(const IntervalVector& box) {
+        IntervalVector inicial(box.size());
+        double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
+        int restriccion = std::round(restriccion1);
+
+        // Generar solución inicial
+        for (int i = 0; i < box.size(); i++) {
+            double random_num = RNG::rand(box[i].lb(), box[i].ub());
+            inicial[i] = Interval(random_num, random_num);
+        }
+
+        double mejor_eval = f_obj(inicial, restriccion);  
+        double temperatura = 1.0;
+        double alpha = 0.95;
+        IntervalVector vecino = inicial;
+        int iter = 0;
+
+        while (iter < 50) {
+            // Aplicar la función de perturbación
+            Vector vecino_vec = fun_per3(inicial.mid(), box);
+            vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
+
+            double eval_vecino = f_obj(vecino, restriccion);
+            double delta = eval_vecino - mejor_eval;
+            double randomReal = (double) rand() / (double) RAND_MAX;
+
+            Interval expInterval = exp(-delta / temperatura);
+            double expValue = expInterval.mid(); // Obteniendo el punto medio del intervalo
+
+            if (delta < 0 || randomReal < expValue) { // Comparando con el punto medio
+                mejor_eval = eval_vecino;
+                inicial = vecino;
+            }
+
+            // Enfriar la temperatura
+            temperatura *= alpha;
+            iter++;
+        }
+
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
+    }
+    std::pair<Vector, double> SimulatedAnnealing::v7(const IntervalVector& box) {
+        IntervalVector inicial(box.size());
+        double restriccion1 = RNG::rand(0, this->sys.nb_ctr - 1); 
+        int restriccion = std::round(restriccion1);
+
+        for (int i = 0; i < box.size(); i++) {
+            double random_num = RNG::rand(box[i].lb(), box[i].ub());
+            inicial[i] = Interval(random_num, random_num);
+        }
+
+        double mejor = f_obj(inicial, restriccion);  
+        double temperatura = 1.0;
+        double alpha = 0.95;
+        bool cambio = true;
+        IntervalVector vecino = inicial;
+        int iter = 0;
+
+        while (cambio && iter < 500) {
+            cambio = false;
+
+            Vector vecino_vec = inicial.mid();  // Convertir IntervalVector a Vector
+            vecino_vec = fun_per3(vecino_vec, box); // Aplicar perturbación
+            vecino = IntervalVector(vecino_vec); // Convertir Vector a IntervalVector
+
+            double delta = f_obj(vecino, restriccion) - mejor;
+            double randomReal = (double) rand() / (double) RAND_MAX;
+
+            Interval expInterval = exp(-delta / temperatura);
+            double expValue = expInterval.mid();
+
+            if (delta < 0 || randomReal < expValue) {
+                mejor = f_obj(vecino, restriccion);
+                inicial = vecino;
+                cambio = true;
+            } else {
+                vecino = inicial;
+            }
+
+            temperatura = alpha * temperatura; 
+            iter++;
+        }
+
+        Vector local_best_point = inicial.mid(); // Punto de expansión local
+        double local_best_fobj = f_obj(local_best_point, restriccion);
+
+        return std::make_pair(local_best_point, local_best_fobj);
+    }
 }
 

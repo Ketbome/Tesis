@@ -4,13 +4,14 @@ import pandas as pd
 
 # Define the folders containing the log files
 folders = [
-    "hill-climbing",
-    "simulated-annealing",
     "abstaylor",
-    "simulated-annealing-joa",
+    "hill-climbing",
     "hill-climbing-parallel",
+    "simulated-annealing",
     "simulated-annealing-parallel",
-]
+    "simulated-annealing-joa",
+    "simulated-annealing-joa-parallel"
+    ]
 
 # Define a function to convert log files to txt files and process them
 def process_log_files(folder):
