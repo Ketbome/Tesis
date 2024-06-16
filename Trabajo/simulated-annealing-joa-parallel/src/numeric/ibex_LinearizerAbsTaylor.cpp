@@ -70,7 +70,7 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
 		for(int i=0; i<NUM_THREADS; i++){
 			threads[i] = std::thread([this, &box, i, &exp_point, &mtx, &best_fobj](){
 				SimulatedAnnealing SA(box, sys);
-				std::pair<Vector, double> result = SA.v7(box);
+				std::pair<Vector, double> result = SA.v1(box);
 				std::lock_guard<std::mutex> lock(mtx);
 				if(result.second < best_fobj){
 					best_fobj = result.second;
@@ -105,7 +105,7 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
 			else if (pid[i] == 0) {
 				close(pipefd[0]);
 				SimulatedAnnealing SA(box, sys);
-				std::pair<Vector, double> result = SA.v7(box);
+				std::pair<Vector, double> result = SA.v1(box);
 				if (result.second < best_fobj) {
 					best_fobj = result.second;
 					ssize_t written = write(pipefd[1], &result, sizeof(result));
