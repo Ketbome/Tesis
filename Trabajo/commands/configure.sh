@@ -1,1 +1,1 @@
-./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex
+./waf configure --lp-lib=soplex --interval-lib=gaol
