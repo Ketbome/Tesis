@@ -1,14 +1,21 @@
 Trabajo/hill-climbing/*
+!Trabajo/hill-climbing/benchs/optim/with10valorless/*
 Trabajo/abstaylor/*
+Trabajo/abstaylor/benchs/optim/with10valorless/*
 Trabajo/simulated-annealing/*
 !Trabajo/simulated-annealing/src*
+!Trabajo/simulated-annealing/benchs/optim/with10valorless*
 Trabajo/simulated-annealing-joa/*
 !Trabajo/simulated-annealing-joa/src*
+!Trabajo/simulated-annealing-joa/benchs/optim/with10valorless*
 Trabajo/simulated-annealing-parallel/*
 !Trabajo/simulated-annealing-parallel/src*
+!Trabajo/simulated-annealing-parallel/benchs/optim/with10valorless*
 Trabajo/simulated-annealing-joa-parallel/*
 !Trabajo/simulated-annealing-joa-parallel/src*
+!Trabajo/simulated-annealing-joa-parallel/benchs/optim/with10valorless*
 Trabajo/hill-climbing-parallel/*
 !Trabajo/hill-climbing-parallel/src*
+!Trabajo/hill-climbing-parallel/benchs/optim/with10valorless*
 
 .vscode*

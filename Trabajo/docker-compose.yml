@@ -12,12 +12,43 @@ services:
     command: >
       bash -c "cd /app &&
       rm -f simulated-annealing.log &&
-      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol &&
       ./waf install &&
-      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      files=(
+        'benchs/optim/hard/chem.bch'
+        'benchs/optim/hard/chem-1.bch'
+        'benchs/optim/hard/chembis.bch'
+        'benchs/optim/hard/ex6_1_3.bch'
+        'benchs/optim/hard/ex6_2_10.bch'
+        'benchs/optim/hard/ex8_5_1bis.bch'
+        'benchs/optim/hard/sambal.bch'
+        'benchs/optim/medium/ex6_2_6.bch'
+        'benchs/optim/medium/ex6_2_8.bch'
+        'benchs/optim/medium/ex6_2_9.bch'
+        'benchs/optim/medium/ex6_2_12.bch'
+        'benchs/optim/medium/ex8_4_4bis.bch'
+        'benchs/optim/medium/ex14_2_7.bch'
+        'benchs/optim/medium/ex6_1_3bis.bch'
+        'benchs/optim/medium/ex2_1_9.bch'
+        'benchs/optim/medium/himmel16.bch'
+        'benchs/optim/medium/ex2_1_7.bch'
+        'benchs/optim/medium/ex2_1_8.bch'
+        'benchs/optim/medium/launch.bch'
+        'benchs/optim/with10valorless/hs088'
+        'benchs/optim/with10valorless/hs093'
+        'benchs/optim/with10valorless/hs102'
+        'benchs/optim/with10valorless/hs103'
+        'benchs/optim/with10valorless/hs108'
+        'benchs/optim/with10valorless/hs113'
+        'benchs/optim/with10valorless/dualc5'
+        'benchs/optim/with10valorless/dualc8'
+        'benchs/optim/with10valorless/mistake'
+        'benchs/optim/with10valorless/odfits'
+        'benchs/optim/blowup/ex2_1_9bis.bch'
+      ) &&
       for file in \$${files[@]}; do
         for i in {1..5}; do
-          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> simulated-annealing.log
+          ./__build__/src/ibexopt \$$file --random-seed=\$$i >> simulated-annealing.log
         done
       done &&
       echo 'Ejecución completada'"
@@ -37,12 +68,43 @@ services:
     command: >
       bash -c "cd /app &&
       rm -f simulated-annealing-joa.log &&
-      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol &&
       ./waf install &&
-      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      files=(
+        'benchs/optim/hard/chem.bch'
+        'benchs/optim/hard/chem-1.bch'
+        'benchs/optim/hard/chembis.bch'
+        'benchs/optim/hard/ex6_1_3.bch'
+        'benchs/optim/hard/ex6_2_10.bch'
+        'benchs/optim/hard/ex8_5_1bis.bch'
+        'benchs/optim/hard/sambal.bch'
+        'benchs/optim/medium/ex6_2_6.bch'
+        'benchs/optim/medium/ex6_2_8.bch'
+        'benchs/optim/medium/ex6_2_9.bch'
+        'benchs/optim/medium/ex6_2_12.bch'
+        'benchs/optim/medium/ex8_4_4bis.bch'
+        'benchs/optim/medium/ex14_2_7.bch'
+        'benchs/optim/medium/ex6_1_3bis.bch'
+        'benchs/optim/medium/ex2_1_9.bch'
+        'benchs/optim/medium/himmel16.bch'
+        'benchs/optim/medium/ex2_1_7.bch'
+        'benchs/optim/medium/ex2_1_8.bch'
+        'benchs/optim/medium/launch.bch'
+        'benchs/optim/with10valorless/hs088'
+        'benchs/optim/with10valorless/hs093'
+        'benchs/optim/with10valorless/hs102'
+        'benchs/optim/with10valorless/hs103'
+        'benchs/optim/with10valorless/hs108'
+        'benchs/optim/with10valorless/hs113'
+        'benchs/optim/with10valorless/dualc5'
+        'benchs/optim/with10valorless/dualc8'
+        'benchs/optim/with10valorless/mistake'
+        'benchs/optim/with10valorless/odfits'
+        'benchs/optim/blowup/ex2_1_9bis.bch'
+      ) &&
       for file in \$${files[@]}; do
         for i in {1..5}; do
-          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> simulated-annealing-joa.log
+          ./__build__/src/ibexopt \$$file --random-seed=\$$i >> simulated-annealing-joa.log
         done
       done &&
       echo 'Ejecución completada'"
@@ -62,12 +124,43 @@ services:
     command: >
       bash -c "cd /app &&
       rm -f hill-climbing.log &&
-      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol &&
       ./waf install &&
-      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      files=(
+        'benchs/optim/hard/chem.bch'
+        'benchs/optim/hard/chem-1.bch'
+        'benchs/optim/hard/chembis.bch'
+        'benchs/optim/hard/ex6_1_3.bch'
+        'benchs/optim/hard/ex6_2_10.bch'
+        'benchs/optim/hard/ex8_5_1bis.bch'
+        'benchs/optim/hard/sambal.bch'
+        'benchs/optim/medium/ex6_2_6.bch'
+        'benchs/optim/medium/ex6_2_8.bch'
+        'benchs/optim/medium/ex6_2_9.bch'
+        'benchs/optim/medium/ex6_2_12.bch'
+        'benchs/optim/medium/ex8_4_4bis.bch'
+        'benchs/optim/medium/ex14_2_7.bch'
+        'benchs/optim/medium/ex6_1_3bis.bch'
+        'benchs/optim/medium/ex2_1_9.bch'
+        'benchs/optim/medium/himmel16.bch'
+        'benchs/optim/medium/ex2_1_7.bch'
+        'benchs/optim/medium/ex2_1_8.bch'
+        'benchs/optim/medium/launch.bch'
+        'benchs/optim/with10valorless/hs088'
+        'benchs/optim/with10valorless/hs093'
+        'benchs/optim/with10valorless/hs102'
+        'benchs/optim/with10valorless/hs103'
+        'benchs/optim/with10valorless/hs108'
+        'benchs/optim/with10valorless/hs113'
+        'benchs/optim/with10valorless/dualc5'
+        'benchs/optim/with10valorless/dualc8'
+        'benchs/optim/with10valorless/mistake'
+        'benchs/optim/with10valorless/odfits'
+        'benchs/optim/blowup/ex2_1_9bis.bch'
+      ) &&
       for file in \$${files[@]}; do
         for i in {1..5}; do
-          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> hill-climbing.log
+          ./__build__/src/ibexopt \$$file --random-seed=\$$i >> hill-climbing.log
         done
       done &&
       echo 'Ejecución completada'"
@@ -87,12 +180,43 @@ services:
     command: >
       bash -c "cd /app &&
       rm -f abstaylor.log &&
-      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol &&
       ./waf install &&
-      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      files=(
+        'benchs/optim/hard/chem.bch'
+        'benchs/optim/hard/chem-1.bch'
+        'benchs/optim/hard/chembis.bch'
+        'benchs/optim/hard/ex6_1_3.bch'
+        'benchs/optim/hard/ex6_2_10.bch'
+        'benchs/optim/hard/ex8_5_1bis.bch'
+        'benchs/optim/hard/sambal.bch'
+        'benchs/optim/medium/ex6_2_6.bch'
+        'benchs/optim/medium/ex6_2_8.bch'
+        'benchs/optim/medium/ex6_2_9.bch'
+        'benchs/optim/medium/ex6_2_12.bch'
+        'benchs/optim/medium/ex8_4_4bis.bch'
+        'benchs/optim/medium/ex14_2_7.bch'
+        'benchs/optim/medium/ex6_1_3bis.bch'
+        'benchs/optim/medium/ex2_1_9.bch'
+        'benchs/optim/medium/himmel16.bch'
+        'benchs/optim/medium/ex2_1_7.bch'
+        'benchs/optim/medium/ex2_1_8.bch'
+        'benchs/optim/medium/launch.bch'
+        'benchs/optim/with10valorless/hs088'
+        'benchs/optim/with10valorless/hs093'
+        'benchs/optim/with10valorless/hs102'
+        'benchs/optim/with10valorless/hs103'
+        'benchs/optim/with10valorless/hs108'
+        'benchs/optim/with10valorless/hs113'
+        'benchs/optim/with10valorless/dualc5'
+        'benchs/optim/with10valorless/dualc8'
+        'benchs/optim/with10valorless/mistake'
+        'benchs/optim/with10valorless/odfits'
+        'benchs/optim/blowup/ex2_1_9bis.bch'
+      ) &&
       for file in \$${files[@]}; do
         for i in {1..5}; do
-          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> abstaylor.log
+          ./__build__/src/ibexopt \$$file --random-seed=\$$i >> abstaylor.log
         done
       done &&
       echo 'Ejecución completada'"
@@ -112,19 +236,50 @@ services:
     command: >
       bash -c "cd /app &&
       rm -f simulated-annealing-parallel.log &&
-      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol &&
       ./waf install &&
-      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      files=(
+        'benchs/optim/hard/chem.bch'
+        'benchs/optim/hard/chem-1.bch'
+        'benchs/optim/hard/chembis.bch'
+        'benchs/optim/hard/ex6_1_3.bch'
+        'benchs/optim/hard/ex6_2_10.bch'
+        'benchs/optim/hard/ex8_5_1bis.bch'
+        'benchs/optim/hard/sambal.bch'
+        'benchs/optim/medium/ex6_2_6.bch'
+        'benchs/optim/medium/ex6_2_8.bch'
+        'benchs/optim/medium/ex6_2_9.bch'
+        'benchs/optim/medium/ex6_2_12.bch'
+        'benchs/optim/medium/ex8_4_4bis.bch'
+        'benchs/optim/medium/ex14_2_7.bch'
+        'benchs/optim/medium/ex6_1_3bis.bch'
+        'benchs/optim/medium/ex2_1_9.bch'
+        'benchs/optim/medium/himmel16.bch'
+        'benchs/optim/medium/ex2_1_7.bch'
+        'benchs/optim/medium/ex2_1_8.bch'
+        'benchs/optim/medium/launch.bch'
+        'benchs/optim/with10valorless/hs088'
+        'benchs/optim/with10valorless/hs093'
+        'benchs/optim/with10valorless/hs102'
+        'benchs/optim/with10valorless/hs103'
+        'benchs/optim/with10valorless/hs108'
+        'benchs/optim/with10valorless/hs113'
+        'benchs/optim/with10valorless/dualc5'
+        'benchs/optim/with10valorless/dualc8'
+        'benchs/optim/with10valorless/mistake'
+        'benchs/optim/with10valorless/odfits'
+        'benchs/optim/blowup/ex2_1_9bis.bch'
+      ) &&
       for file in \$${files[@]}; do
         for i in {1..5}; do
-          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> simulated-annealing-parallel.log
+          ./__build__/src/ibexopt \$$file --random-seed=\$$i >> simulated-annealing-parallel.log
         done
       done &&
       echo 'Ejecución completada'"
     deploy:
       resources:
         limits:
-          cpus: "5.0"
+          cpus: "1.0"
 
   hill-climbing-parallel:
     build: .
@@ -137,12 +292,43 @@ services:
     command: >
       bash -c "cd /app &&
       rm -f hill-climbing-parallel.log &&
-      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol &&
       ./waf install &&
-      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      files=(
+        'benchs/optim/hard/chem.bch'
+        'benchs/optim/hard/chem-1.bch'
+        'benchs/optim/hard/chembis.bch'
+        'benchs/optim/hard/ex6_1_3.bch'
+        'benchs/optim/hard/ex6_2_10.bch'
+        'benchs/optim/hard/ex8_5_1bis.bch'
+        'benchs/optim/hard/sambal.bch'
+        'benchs/optim/medium/ex6_2_6.bch'
+        'benchs/optim/medium/ex6_2_8.bch'
+        'benchs/optim/medium/ex6_2_9.bch'
+        'benchs/optim/medium/ex6_2_12.bch'
+        'benchs/optim/medium/ex8_4_4bis.bch'
+        'benchs/optim/medium/ex14_2_7.bch'
+        'benchs/optim/medium/ex6_1_3bis.bch'
+        'benchs/optim/medium/ex2_1_9.bch'
+        'benchs/optim/medium/himmel16.bch'
+        'benchs/optim/medium/ex2_1_7.bch'
+        'benchs/optim/medium/ex2_1_8.bch'
+        'benchs/optim/medium/launch.bch'
+        'benchs/optim/with10valorless/hs088'
+        'benchs/optim/with10valorless/hs093'
+        'benchs/optim/with10valorless/hs102'
+        'benchs/optim/with10valorless/hs103'
+        'benchs/optim/with10valorless/hs108'
+        'benchs/optim/with10valorless/hs113'
+        'benchs/optim/with10valorless/dualc5'
+        'benchs/optim/with10valorless/dualc8'
+        'benchs/optim/with10valorless/mistake'
+        'benchs/optim/with10valorless/odfits'
+        'benchs/optim/blowup/ex2_1_9bis.bch'
+      ) &&
       for file in \$${files[@]}; do
         for i in {1..5}; do
-          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> hill-climbing-parallel.log
+          ./__build__/src/ibexopt \$$file --random-seed=\$$i >> hill-climbing-parallel.log
         done
       done &&
       echo 'Ejecución completada'"
@@ -162,12 +348,43 @@ services:
     command: >
       bash -c "cd /app &&
       rm -f simulated-annealing-joa-parallel.log &&
-      ./waf configure --lp-lib=soplex --interval-lib=gaol --lp-lib=soplex &&
+      ./waf configure --lp-lib=soplex --interval-lib=gaol &&
       ./waf install &&
-      files=("ex2_1_8.bch" "ex2_1_9.bch" "ex6_1_3bis.bch" "launch.bch" "ex14_2_7.bch" "ex2_1_9fact.bch" "ex6_1_4.bch" "ex6_2_6.bch" "ex6_2_8.bch" "ex7_3_4.bch" "ex7_3_4bis.bch" "ex14_2_3.bch" "haverly.bch") &&
+      files=(
+        'benchs/optim/hard/chem.bch'
+        'benchs/optim/hard/chem-1.bch'
+        'benchs/optim/hard/chembis.bch'
+        'benchs/optim/hard/ex6_1_3.bch'
+        'benchs/optim/hard/ex6_2_10.bch'
+        'benchs/optim/hard/ex8_5_1bis.bch'
+        'benchs/optim/hard/sambal.bch'
+        'benchs/optim/medium/ex6_2_6.bch'
+        'benchs/optim/medium/ex6_2_8.bch'
+        'benchs/optim/medium/ex6_2_9.bch'
+        'benchs/optim/medium/ex6_2_12.bch'
+        'benchs/optim/medium/ex8_4_4bis.bch'
+        'benchs/optim/medium/ex14_2_7.bch'
+        'benchs/optim/medium/ex6_1_3bis.bch'
+        'benchs/optim/medium/ex2_1_9.bch'
+        'benchs/optim/medium/himmel16.bch'
+        'benchs/optim/medium/ex2_1_7.bch'
+        'benchs/optim/medium/ex2_1_8.bch'
+        'benchs/optim/medium/launch.bch'
+        'benchs/optim/with10valorless/hs088'
+        'benchs/optim/with10valorless/hs093'
+        'benchs/optim/with10valorless/hs102'
+        'benchs/optim/with10valorless/hs103'
+        'benchs/optim/with10valorless/hs108'
+        'benchs/optim/with10valorless/hs113'
+        'benchs/optim/with10valorless/dualc5'
+        'benchs/optim/with10valorless/dualc8'
+        'benchs/optim/with10valorless/mistake'
+        'benchs/optim/with10valorless/odfits'
+        'benchs/optim/blowup/ex2_1_9bis.bch'
+      ) &&
       for file in \$${files[@]}; do
         for i in {1..5}; do
-          ./__build__/src/ibexopt benchs/optim/medium/\$$file --random-seed=\$$i >> simulated-annealing-joa-parallel.log
+          ./__build__/src/ibexopt \$$file --random-seed=\$$i >> simulated-annealing-joa-parallel.log
         done
       done &&
       echo 'Ejecución completada'"
