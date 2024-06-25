@@ -279,7 +279,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.0"
+          cpus: "3.0"
 
   hill-climbing-parallel:
     build: .
@@ -335,7 +335,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "5.0"
+          cpus: "3.0"
 
   simulated-annealing-joa-parallel:
     build: .
@@ -391,7 +391,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "5.0"
+          cpus: "3.0"
 
   pruebas:
     build: .
