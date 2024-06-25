@@ -4,12 +4,12 @@ import pandas as pd
 
 # Define the folders containing the log files
 folders = [
-    # "abstaylor",
-    # "hill-climbing",
-    "hill-climbing-parallel",
-    # "simulated-annealing",
-    "simulated-annealing-parallel",
-    # "simulated-annealing-joa",
+    "abstaylor",
+    "hill-climbing",
+    #"hill-climbing-parallel",
+    "simulated-annealing",
+    #"simulated-annealing-parallel",
+    "simulated-annealing-joa",
     # "simulated-annealing-joa-parallel"
     ]
 
