@@ -6,11 +6,11 @@ import pandas as pd
 folders = [
     "abstaylor",
     "hill-climbing",
-    #"hill-climbing-parallel",
+    "hill-climbing-parallel",
     "simulated-annealing",
-    #"simulated-annealing-parallel",
+    "simulated-annealing-parallel",
     "simulated-annealing-joa",
-    # "simulated-annealing-joa-parallel"
+    "simulated-annealing-joa-parallel"
     ]
 
 # Define a function to convert log files to txt files and process them
