@@ -60,7 +60,7 @@ int LinearizerAbsTaylor::linear_restrict(const IntervalVector& box) {
     if (point == MID)
         exp_point = box.mid();
 	else if (point == Simulated_Annealing_pthread) {
-        int NUM_THREADS = 12;
+        int NUM_THREADS = 24;
 		std::thread threads[NUM_THREADS];
 		std::mutex mtx;
 		double best_fobj = std::numeric_limits<double>::max();
