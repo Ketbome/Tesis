@@ -6,7 +6,7 @@ import pandas as pd
 folders = [
     "abstaylor",
     "hill-climbing",
-    "hill-climbing-parallel",
+    #"hill-climbing-parallel",
     "simulated-annealing",
     "simulated-annealing-parallel",
     "simulated-annealing-joa",
